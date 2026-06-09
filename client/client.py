@@ -42,17 +42,21 @@ async def client():
 
             counter = 1
             while True:
+                # Data halen via wss
                 await ws.send("get")
                 print("------------------")
                 print(f"{counter}: Get-commando verzonden, wacht op antwoord...")
                 print("------------------")
 
+                # Data ontvangen
                 msg = await ws.recv()
                 print(f"Message recieved: {msg}")
 
+                # Data decoden
                 decoded_msg = decode(msg)
                 print(f"Decoded message: {decoded_msg}")
 
+                # Data publishen
                 mqtt_client.publish(TOPIC, decoded_msg)
 
                 await asyncio.sleep(5)  # wacht 5 seconden voordat je het volgende bericht stuurt
@@ -61,6 +65,7 @@ async def client():
     except Exception as e:
         print("Fout opgetreden:", e)
 
+# Decode functie
 def decode(msg):
     print("Decoding message...")
 
@@ -78,13 +83,13 @@ def decode(msg):
         "encrypted_boodschap": encrypt_msg,
         "caesarcode": shift,
         "decrypted_name": name,
-        "boosdschap": message
+        "decrypted_boodschap": message
     })
 
     print("Message decoded...")
     return data_out
 
-
+# caesar functie
 def caesar(key, message):
     new_message = ""
 
@@ -103,7 +108,7 @@ def caesar(key, message):
     return new_message
     
 
-
+# --- Main ---
 print("Starten Broker...")
 mqtt_client.connect(BROKER, 1883, 60)
 mqtt_client.loop_start()
